@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View,  StyleSheet } from "react-native";
+import { ThemedText } from "./themed-text";
 
 export default function HabitGreeting({nombre = "Hola"}){
     const fecha = new Date();
@@ -8,22 +9,16 @@ export default function HabitGreeting({nombre = "Hola"}){
 
     return(
         <View style = {styles.container}>
-            <Text style = {styles.title}>
+            <ThemedText style = {styles.title}>
                 {saludo}
                 {nombre ? `${nombre}`: ""}
-            </Text>
-            <Text style = {[styles.subtitle, {color: "#2563EB"}]}>
+            </ThemedText>
+            <ThemedText style = {[styles.subtitle, {color: "#2563EB"}]}>
                 Hoy es {fecha.toLocaleDateString()} - {fecha.toLocaleTimeString()}
-            </Text>
-            <View style = {{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }}>
-            <Text>Izquierda</Text>
-            <Text>centro</Text>
-            <Text>derecha</Text>
-            </View>
+            </ThemedText>
+            <ThemedText>Izquierda</ThemedText>
+            <ThemedText>centro</ThemedText>
+            <ThemedText>derecha</ThemedText>
         </View>
     )
 }

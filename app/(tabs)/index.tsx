@@ -1,26 +1,67 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet, View, Text } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
-import { ejemploDestructuracionUsuario } from '@/utils/math';
+import {  Pressable, StyleSheet, TextInput, View } from 'react-native';
 import HabitGreeting from '@/components/HabitGreeting';
 import HabitCard from '@/components/HabitCard';
 import Screen from '@/components/Screen';
 import ProfileHeader from '@/components/ProfileHeader';
+import { useCallback, useMemo, useState } from 'react';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { ThemedText } from '@/components/themed-text';
+
+type Habit = {id: string; title: string, streak: number; isCompleted: boolean; priority: 'low' | 'mid' | 'high'};
+
+const INITIAL: Habit[] = [
+    {id: "h1", title: "Beber agua", streak: 3, isCompleted: true, priority: 'mid'},
+    {id: "h1", title: "Beber agua", streak: 3, isCompleted: false, priority: 'high'},
+    {id: "h1", title: "Beber agua", streak: 3, isCompleted: false, priority: 'low'},
+];
 
 export default function HomeScreen() {
-  const nombre = "Jose Luis";
-  const edad = 23;
-  const isPremium = false;
-  const messages = 0;
-  const fecha = new Date();
-  const hora = fecha.getHours();
-  const saludo = hora < 12? "Buenos dias" : hora <  18? "Buenas tardes" : "Buenas noches";
-  
+  const [items, setItems] = useState<Habit[]>(INITIAL);
+  const [nuevo, setNuevo] = useState("");
+
+  const border = useThemeColor({}, "border");
+  const surface = useThemeColor({}, "surface");
+  const primary = useThemeColor({}, "primary");
+  const onPrimary = useThemeColor({}, "onPrimary");
+  const text = useThemeColor({}, "text");
+  const muted = useThemeColor({}, "muted");
+
+  const toggle = useCallback((id: string) => {
+    setItems((prev) =>
+      prev.map((h) => {
+        if (h.id !== id) return h;
+        const completed = !h.isCompleted;
+        return {
+          ...h,
+          isCompleted: completed,
+          streak: completed ? h.streak + 1 : Math.max(0, h.streak - 1),
+        };
+      })
+    );
+  }, []); 
+
+  const addHabit = useCallback(() => {
+    const title = nuevo.trim();
+    if (!title) return;
+    setItems((prev) => [
+      {
+        id: `h${Date.now()}`,
+        title,
+        streak: 0,
+        isCompleted: false,
+        priority: "low",
+      },
+      ...prev,
+    ]);
+    setNuevo("");
+  }, [nuevo]);
+
+  const total = items.length;
+  const completados = useMemo(
+    () => items.filter((h) => h.isCompleted).length,
+    [items]
+  );
+
   const habits = [
     {id: "h1", title: "Beber agua", streak: 3, isCompleted: true},
     {id: "h1", title: "Beber agua", streak: 3, isCompleted: false},
@@ -29,9 +70,26 @@ export default function HomeScreen() {
 
   return (
     <Screen>
-    <View style={styles.container}>
-      <ProfileHeader name = "pank" ></ProfileHeader>
+      <ProfileHeader name = "pank" role="dev" ></ProfileHeader>
         <HabitGreeting nombre = "goat" />
+        <View style={[styles.row, { alignItems: "center" }]}>
+          <TextInput
+          value={nuevo}
+          onChangeText={setNuevo}
+          placeholder="Nuevo habito (ej Meditar)"
+          onSubmitEditing={addHabit}
+          style={[
+            styles.input,
+            { backgroundColor: surface, borderColor: border, color: text },
+          ]}
+          />
+        <Pressable
+          onPress={addHabit}
+          style={[styles.addBtn, { backgroundColor: primary }]}
+        >
+          <ThemedText>Añadir</ThemedText>
+        </Pressable>
+      </View>
         <View style={{ gap: 12 }}>
           {habits.map((h) => (
             <HabitCard 
@@ -43,7 +101,6 @@ export default function HomeScreen() {
         ))
         }
         </View>
-    </View>
     </Screen>
 
   );
@@ -82,5 +139,20 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: '#334155',
+  },
+   row: { flexDirection: "row", gap: 8 },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  addBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

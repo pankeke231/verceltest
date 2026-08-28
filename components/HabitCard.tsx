@@ -1,10 +1,13 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
+import {ThemedText} from "./themed-text";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 type Props = {
     title: string;
     streak: number;
     isCompleted?: boolean;
     priority?: 'low'| 'mid' | 'high';
+    onToggle?: () => void;
 };
 
 const priorityStyles = {
@@ -26,14 +29,30 @@ export default function HabitCard({
     title,
     streak,
     isCompleted = false,
-    priority = 'mid',
+    priority = 'high',
+    onToggle,
 }: Props){
+    const surface = useThemeColor({}, "surface");
+    const success = useThemeColor({}, "success");
+    const border = useThemeColor({}, "border");
+    
     const p = priorityStyles[priority];
     return(
-        <View style = {[styles.card, isCompleted && styles.cardDone]}>
+        <Pressable
+         onPress={onToggle} 
+         style={({pressed}) => [
+            styles.card, 
+            {
+                backgroundColor: surface, 
+                opacity: pressed ? 0.96 : 1, 
+                borderColor: isCompleted? success : border,
+            }
+            ]}
+        >
+
             <View style = {styles.row}>
-                <Text style= {styles.title}>{title}</Text>
-                <Text 
+                <ThemedText style= {styles.title}>{title}</ThemedText>
+                <ThemedText 
                 style= {[
                     styles.badge,
                     { backgroundColor: p.backgroundColor,
@@ -41,14 +60,14 @@ export default function HabitCard({
                     ]}
                 >
                     {priority}
-                </Text>
+                </ThemedText>
             </View>
             <View style = {styles.row}>
-                {isCompleted && <Text style = {styles.badge}> Hoy </Text>}
-                <Text style = {styles.streak}>fuego {streak} dias </Text>
+                {isCompleted && <ThemedText style = {styles.badge}> Hoy </ThemedText>}
+                <ThemedText style = {styles.streak}>fuego {streak} dias </ThemedText>
                 
             </View>
-        </View>
+        </Pressable>
     )
 }
 
@@ -72,5 +91,5 @@ const styles = StyleSheet.create({
     },
     title: { fontSize: 16, fontWeight: 600, color: '#0F172A'},
     badge: {fontSize: 12, color: "#16A34A"},
-    
+    streak: {fontSize: 12, color: "#16A34A"},    
 })

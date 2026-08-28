@@ -1,15 +1,35 @@
 import { View, StyleSheet } from "react-native";
+import { ThemedView } from "./themed-view";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = { children: React.ReactNode};
 
 export default function Screen ({ children}: Props){
-    return <View style = {styles.screen}>{children}</View>
+    const bg = useThemeColor({}, "background");
+    const insets = useSafeAreaInsets();
+
+    return (
+        <ThemedView
+         style={[
+            styles.screen,
+             {
+                backgroundColor: bg,
+                paddingTop: insets.top,
+                paddingBottom: insets.bottom + 16,
+                paddingHorizontal: 16,
+            },
+        ]}
+        >
+        {children}
+        </ThemedView>
+    )
 }
 
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: "",
+        backgroundColor: "#F8FAFC",
         paddingHorizontal: 16,
         paddingVertical: 20,
         gap: 16,
